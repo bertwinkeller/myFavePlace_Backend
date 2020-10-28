@@ -1,28 +1,67 @@
-const multer = require('multer');
-const uuid = require('uuid/v1');
+
+
+
+// const MIME_TYPE_MAP = {
+//   'image/png': 'png',
+//   'image/jpeg': 'jpeg',
+//   'image/jpg': 'jpg'
+// };
+
+// const fileUpload = multer({
+//   limits: 500000,
+//   storage: multer.diskStorage({
+//     destination: (req, file, cb) => {
+//       cb(null, 'uploads/images');
+//     },
+//     filename: (req, file, cb) => {
+//       const ext = MIME_TYPE_MAP[file.mimetype];
+//       cb(null, uuid() + '.' + ext);
+//     }
+//   }),
+//   fileFilter: (req, file, cb) => {
+//     const isValid = !!MIME_TYPE_MAP[file.mimetype];
+//     let error = isValid ? null : new Error('Invalid mime type!');
+//     cb(error, isValid);
+//   }
+// });
+
+
+const multer = require("multer");
+const uuid = require("uuid/v1");
+const multerS3 = require("multer-s3");
+const AWS = require("aws-sdk");
+
+const s3 = new AWS.S3({
+  accessKeyId: 'AKIAJHNNSMFTYII5OBUQ',
+  secretAccessKey: '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',
+  region:'us-west-1'
+});
 
 const MIME_TYPE_MAP = {
-  'image/png': 'png',
-  'image/jpeg': 'jpeg',
-  'image/jpg': 'jpg'
+  "image/png": "png",
+  "image/jpeg": "jpeg",
+  "image/jpg": "jpg",
 };
 
 const fileUpload = multer({
   limits: 500000,
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, 'uploads/images');
+  storage: multerS3({
+    s3: s3,
+    acl: 'public-read',
+    bucket: 'new-app-image-upload',
+    metadata: (req, file, cb) => {
+      cb(null, { fieldName: file.fieldname });
     },
-    filename: (req, file, cb) => {
+    key: (req, file, cb) => {
       const ext = MIME_TYPE_MAP[file.mimetype];
-      cb(null, uuid() + '.' + ext);
-    }
+      cb(null, uuid() + "." + ext);
+    },
   }),
   fileFilter: (req, file, cb) => {
     const isValid = !!MIME_TYPE_MAP[file.mimetype];
-    let error = isValid ? null : new Error('Invalid mime type!');
+    let error = isValid ? null : new Error("Invalid mime type!");
     cb(error, isValid);
-  }
+  },
 });
 
 module.exports = fileUpload;
