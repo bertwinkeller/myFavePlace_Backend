@@ -47,10 +47,10 @@ const fileUpload = multer({
   limits: 500000,
   storage: multerS3({
     s3: s3,
-    bucket: 'new-app-image-upload',
+    bucket: process.env.AWS_BUCKET_NAME,
     acl: 'public-read',
     metadata: (req, file, cb) => {
-      cb(null, { fieldName: file.fieldname });
+      cb(null, { fieldName: file.fieldname});
     },
     key: (req, file, cb) => {
       const ext = MIME_TYPE_MAP[file.mimetype];

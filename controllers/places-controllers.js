@@ -20,7 +20,7 @@ const getPlaceById = async (req, res, next) => {
       500
     );
     return next(error);
-  }
+  }    
 
   if (!place) {
     const error = new HttpError(
@@ -84,7 +84,7 @@ const createPlace = async (req, res, next) => {
     description,
     address,
     location: coordinates,
-    image: req.file.path,
+    image: req.file.location,
     creator: req.userData.userId
   });
 
